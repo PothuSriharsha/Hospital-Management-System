@@ -1,6 +1,3 @@
--- Hospital Management System Database Schema
--- Cleaned and optimized version
--- ==========================================
 
 -- 1. Database Setup
 DROP DATABASE IF EXISTS hospital_db;
@@ -173,3 +170,4 @@ FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE;
 ALTER TABLE billing 
 ADD CONSTRAINT fk_patient_billing 
 FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE;
+
