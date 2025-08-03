@@ -9,13 +9,13 @@ from datetime import datetime
 
 
 app = Flask(__name__)
-app.secret_key = 'harsha5454'
+app.secret_key = '********'
 
 # MySQL Configuration
 db_config = {
     "host": "localhost",
     "user": "root",
-    "password": "harsha5454",
+    "password": "**********",
     "database": "hospital_db"
 }
 
