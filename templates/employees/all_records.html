@@ -1,0 +1,73 @@
+{% extends "shared/layout.html" %} {% block content %}
+<div class="container">
+    <h2 class="mb-4">All Medical Records</h2>
+
+    <div class="mb-4">
+        <form method="POST" action="{{ url_for('add_record') }}">
+            <div class="row g-3 align-items-end">
+                <div class="col-md-3">
+                    <label class="form-label">Patient</label>
+                    <select name="patient_id" class="form-select" required>
+                        <option disabled selected>Select Patient</option>
+                        {% for patient in patients %}
+                        <option value="{{ patient.id }}">{{ patient.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Diagnosis</label>
+                    <input type="text" name="diagnosis" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Treatment</label>
+                    <input type="text" name="treatment" class="form-control" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label">Notes</label>
+                    <input type="text" name="notes" class="form-control">
+                </div>
+                <div class="col-12">
+                    <button type="submit" class="btn btn-success">Add Record</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    {% if records %}
+    <div class="table-responsive">
+        <table class="table table-bordered table-striped">
+            <thead class="table-primary">
+                <tr>
+                    <th>ID</th>
+                    <th>Patient</th>
+                    <th>Diagnosis</th>
+                    <th>Treatment</th>
+                    <th>Notes</th>
+                    <th>Date</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for record in records %}
+                <tr>
+                    <td>{{ record.id }}</td>
+                    <td>{{ record.patient_name }}</td>
+                    <td>{{ record.diagnosis }}</td>
+                    <td>{{ record.treatment }}</td>
+                    <td>{{ record.notes }}</td>
+                    <td>{{ record.record_date }}</td>
+                    <td>
+                        <a href="{{ url_for('delete_record', id=record.id) }}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete this record?')">
+                            Delete
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <p>No medical records found.</p>
+    {% endif %}
+</div>
+{% endblock %}

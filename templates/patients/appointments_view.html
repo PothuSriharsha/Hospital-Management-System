@@ -1,0 +1,66 @@
+{% extends "shared/layout.html" %} {% block content %}
+<div class="page-header">
+    <h2 class="page-title">Book a New Appointment</h2>
+</div>
+
+<form method="POST" action="{{ url_for('book_appointment') }}" class="row g-3 mb-4">
+    <div class="col-md-6">
+        <label for="doctor_id" class="form-label">Select Doctor:</label>
+        <select class="form-select" id="doctor_id" name="doctor_id" required>
+            <option disabled selected>-- Select a Doctor --</option>
+            {% for doctor in doctors %}
+            <option value="{{ doctor.id }}">{{ doctor.name }} ({{ doctor.specialization }})</option>
+            {% endfor %}
+        </select>
+    </div>
+    <div class="col-md-6">
+        <label for="appointment_date" class="form-label">Appointment Date & Time:</label>
+        <input type="datetime-local" class="form-control" id="appointment_date" name="appointment_date" required>
+    </div>
+    <div class="col-md-12">
+        <label for="notes" class="form-label">Notes (optional):</label>
+        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+    </div>
+    <div class="col-md-12">
+        <button type="submit" class="btn btn-success">
+            <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+        </button>
+    </div>
+</form>
+
+<div class="page-header mt-5">
+    <h2 class="page-title">Your Appointments</h2>
+</div>
+
+{% if appointments %}
+<div class="table-responsive">
+    <table class="table table-striped table-hover">
+        <thead class="table-dark">
+            <tr>
+                <th>Doctor</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th>Notes</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for appt in appointments %}
+            <tr>
+                <td>{{ appt.doctor_name }}</td>
+                <td>{{ appt.appointment_date }}</td>
+                <td>{{ appt.status }}</td>
+                <td>{{ appt.notes }}</td>
+                <td>
+                    <a href="{{ url_for('delete_appointment', appointment_id=appt.id) }}" class="btn btn-danger btn-sm">
+                        <i class="fas fa-trash-alt me-1"></i>Cancel
+                    </a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<p>You have no appointments booked yet.</p>
+{% endif %} {% endblock %}

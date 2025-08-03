@@ -1,0 +1,43 @@
+{% extends "shared/layout.html" %} {% block title %}Book Appointment - Hospital Management System{% endblock %} {% block content %}
+<div class="page-header">
+    <h2 class="page-title">Book Appointment</h2>
+</div>
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card shadow">
+            <div class="card-header bg-primary text-white">
+                <h4>Appointment with Dr. {{ doctor.name }} ({{ doctor.specialization }})</h4>
+            </div>
+            <div class="card-body">
+                <form method="POST" action="{{ url_for('book_appointment') }}">
+                    <!-- Doctor ID -->
+                    <input type="hidden" name="doctor_id" value="{{ doctor.id }}">
+
+                    <!-- Date and Time -->
+                    <div class="mb-3">
+                        <label for="appointment_date" class="form-label">Date & Time</label>
+                        <input type="datetime-local" class="form-control" id="appointment_date" name="appointment_date" required>
+                    </div>
+
+                    <!-- Notes -->
+                    <div class="mb-3">
+                        <label for="notes" class="form-label">Notes (Optional)</label>
+                        <textarea class="form-control" id="notes" name="notes" rows="3"></textarea>
+                    </div>
+
+                    <!-- Submit -->
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary">
+                            <i class="fas fa-calendar-check me-2"></i>Confirm Appointment
+                        </button>
+                        <a href="{{ url_for('doctors_list_view') }}" class="btn btn-outline-secondary">
+                            <i class="fas fa-times me-2"></i>Cancel
+                        </a>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

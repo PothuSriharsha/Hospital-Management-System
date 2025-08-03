@@ -1,0 +1,28 @@
+{% extends "shared/layout.html" %}
+{% block title %}Doctor Details - {{ doctor.name }}{% endblock %} {% block content %}
+<div class="page-header">
+    <h2 class="page-title">Doctor Details: {{ doctor.name }}</h2>
+</div>
+
+{% if doctor %}
+<div class="card">
+    <div class="card-header">
+        <h3>Dr. {{ doctor.name }}</h3>
+    </div>
+    <div class="card-body">
+        <p><strong>ID:</strong> {{ doctor.id }}</p>
+        <p><strong>Specialization:</strong> {{ doctor.specialization }}</p>
+        {# Add other doctor details you want to display from your 'doctors' table #} {# e.g.,
+        <p><strong>Contact:</strong> {{ doctor.contact }}</p> #} {# e.g.,
+        <p><strong>Email:</strong> {{ doctor.email }}</p> #} {# e.g.,
+        <p><strong>Department:</strong> {{ doctor.department }}</p> #}
+    </div>
+    <div class="card-footer">
+        <a href="{{ url_for('doctors') }}" class="btn btn-secondary">Back to Doctors List</a> {# Optionally, add an edit button if you implement an edit_doctor route #} {# <a href="{{ url_for('edit_doctor', doctor_id=doctor.id) }}" class="btn btn-warning">Edit Details</a>        #}
+    </div>
+</div>
+{% else %}
+<div class="alert alert-warning" role="alert">
+    Doctor information not found.
+</div>
+<a href="{{ url_for('doctors') }}" class="btn btn-primary">Back to Doctors List</a> {% endif %} {% endblock %}

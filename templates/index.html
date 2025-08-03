@@ -1,0 +1,75 @@
+{% extends "shared/layout.html" %} {% block title %} Dashboard - Hospital Management System{% endblock %} {% block content %}
+<div class="page-header">
+    <h2 class="page-title">Welcome, {{ session.name }}</h2>
+    <p class="mb-0">Here's your personalized dashboard</p>
+</div>
+
+<div class="row g-4">
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-user"></i>
+                </div>
+                <h5 class="card-title">Patients</h5>
+                <p class="card-text">View and update your personal information</p>
+                <a href="/patients" class="btn btn-primary stretched-link">View Profile</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-calendar-check"></i>
+                </div>
+                <h5 class="card-title">Appointments</h5>
+                <p class="card-text">Manage your doctor appointments</p>
+                <a href="/appointments" class="btn btn-primary stretched-link">Manage Appointments</a>
+            </div>
+        </div>
+    </div>
+    {% if session.role == 'employee' %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-users"></i>
+                </div>
+                <h5 class="card-title">Staff</h5>
+                <p class="card-text">Manage hospital staff members</p>
+                <a href="/staff" class="btn btn-primary stretched-link">Manage Staff</a>
+            </div>
+        </div>
+    </div>
+    {% endif %}
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-file-invoice-dollar"></i>
+                </div>
+                <h5 class="card-title">Billing</h5>
+                <p class="card-text">View your payment history and bills</p>
+                <a href="/billing" class="btn btn-primary stretched-link">View Billing</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 col-lg-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-file-medical"></i>
+                </div>
+                <h5 class="card-title">Medical Records</h5>
+                <p class="card-text">Access your health records and history</p>
+                <a href="/records" class="btn btn-primary stretched-link">View Records</a>
+            </div>
+        </div>
+    </div>
+
+
+</div>
+{% endblock %}

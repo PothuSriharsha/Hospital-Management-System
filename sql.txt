@@ -1,0 +1,175 @@
+-- Hospital Management System Database Schema
+-- Cleaned and optimized version
+-- ==========================================
+
+-- 1. Database Setup
+DROP DATABASE IF EXISTS hospital_db;
+CREATE DATABASE hospital_db;
+USE hospital_db;
+
+-- 2. Core Tables
+CREATE TABLE patients (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,  -- For storing hashed passwords
+    age INT,
+    contact VARCHAR(20) NOT NULL,
+    address TEXT NOT NULL,
+    gender ENUM('Male', 'Female', 'Other') NOT NULL,
+    dob DATE,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) AUTO_INCREMENT = 1000;
+
+CREATE TABLE medical_staff (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    name VARCHAR(100) NOT NULL,
+    email VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(255) NOT NULL,  -- For storing hashed passwords
+    role ENUM('doctor', 'nurse', 'admin', 'receptionist') NOT NULL,
+    specialization VARCHAR(100),
+    department VARCHAR(50),
+    contact VARCHAR(20) NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+) AUTO_INCREMENT = 1000;
+
+-- 3. Medical Tables
+CREATE TABLE medical_records (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    staff_id INT NOT NULL,
+    diagnosis TEXT NOT NULL,
+    prescription TEXT,
+    treatment TEXT,
+    record_date TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES medical_staff(id) ON DELETE CASCADE
+);
+ALTER TABLE medical_records MODIFY staff_id INT NULL;
+CREATE TABLE appointments (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    staff_id INT NOT NULL,
+    appointment_date DATETIME NOT NULL,
+    status ENUM('Scheduled', 'Completed', 'Cancelled') DEFAULT 'Scheduled',
+    notes TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE,
+    FOREIGN KEY (staff_id) REFERENCES medical_staff(id) ON DELETE CASCADE
+);
+
+ALTER TABLE medical_records 
+ADD COLUMN notes TEXT AFTER treatment;
+
+DROP PROCEDURE IF EXISTS add_medical_staff;
+DELIMITER //
+CREATE PROCEDURE `add_medical_staff`(
+    IN p_name VARCHAR(255),
+    IN p_role VARCHAR(50),
+    IN p_contact VARCHAR(20),
+    IN p_email VARCHAR(255),
+    IN p_password VARCHAR(255),
+    IN p_department VARCHAR(100),
+    IN p_specialization VARCHAR(30)  -- VERY IMPORTANT: VARCHAR(30) means max length is 30 characters!
+)
+BEGIN
+    INSERT INTO medical_staff (name, email, password, role, specialization, department, contact)
+    VALUES (p_name, p_email, p_password, p_role, p_specialization, p_department, p_contact);
+END //
+DELIMITER ;
+
+CREATE TABLE billing (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    patient_id INT NOT NULL,
+    amount DECIMAL(10,2) NOT NULL,
+    payment_date DATE,
+    status ENUM('Pending', 'Paid', 'Cancelled') DEFAULT 'Pending',
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE
+);
+
+CREATE TABLE rooms (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    room_number VARCHAR(10) UNIQUE NOT NULL,
+    room_type VARCHAR(50) NOT NULL, -- 'General', 'ICU', 'Private', etc.
+    status ENUM('available', 'occupied', 'maintenance') DEFAULT 'available',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+CREATE TABLE bookings (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    patient_id INT NOT NULL,
+    room_id INT NOT NULL,
+    check_in DATE NOT NULL,
+    check_out DATE NOT NULL,
+    purpose TEXT,
+    status ENUM('active', 'completed', 'cancelled') DEFAULT 'active',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (patient_id) REFERENCES patients(id),
+    FOREIGN KEY (room_id) REFERENCES rooms(id)
+);
+SELECT * FROM rooms WHERE status = 'available';
+SELECT r.* FROM rooms r, bookings b WHERE status = 'available'
+ALTER TABLE bookings MODIFY status ENUM('active', 'cancelled', 'completed') DEFAULT 'active';
+
+-- Add sample rooms
+INSERT INTO rooms (room_number, room_type) VALUES 
+('101', 'General'), 
+('102', 'General'), 
+('201', 'Private'), 
+('202', 'Private'), 
+('301', 'ICU');
+
+-- Add sample bookings
+INSERT INTO bookings (patient_id, room_id, check_in, check_out, purpose) VALUES
+(1, 1, '2023-06-01', '2023-06-05', 'Regular checkup'),
+(2, 3, '2023-06-02', '2023-06-10', 'Surgery recovery');
+
+-- 5. Indexes for Performance
+CREATE INDEX idx_patient_email ON patients(email);
+CREATE INDEX idx_staff_email ON medical_staff(email);
+CREATE INDEX idx_appointment_date ON appointments(appointment_date);
+CREATE INDEX idx_billing_patient ON billing(patient_id);
+
+-- 6. Sample Data (Optional)
+INSERT INTO patients (name, email, password, age, contact, address, gender) VALUES
+('John Doe', 'john@example.com', '$2b$12$examplehashedpassword', 35, '1234567890', '123 Main St', 'Male'),
+('Jane Smith', 'jane@example.com', '$2b$12$examplehashedpassword', 28, '9876543210', '456 Oak Ave', 'Female');
+
+INSERT INTO medical_staff (name, email, password, role, specialization, department, contact) VALUES
+('Dr. Sarah Lee', 'sarah@hospital.com', '$2b$12$doctorhashedpassword', 'doctor', 'Cardiology', 'Cardiology', '4445556666'),
+('Nurse Amy Johnson', 'amy@hospital.com', '$2b$12$nursehashedpassword', 'nurse', NULL, 'Emergency', '2223334444');
+
+-- 7. Views (Optional but useful)
+CREATE VIEW doctor_list_view AS
+SELECT id, name, specialization, department, contact 
+FROM medical_staff 
+WHERE role = 'doctor';
+
+CREATE VIEW active_appointments AS
+SELECT a.id, p.name AS patient_name, s.name AS staff_name, a.appointment_date
+FROM appointments a
+JOIN patients p ON a.patient_id = p.id
+JOIN medical_staff s ON a.staff_id = s.id
+WHERE a.status = 'Scheduled';
+
+
+ALTER TABLE medical_records ADD COLUMN notes TEXT;
+-- First, drop existing constraints
+ALTER TABLE appointments DROP FOREIGN KEY appointments_ibfk_1;
+ALTER TABLE medical_records DROP FOREIGN KEY medical_records_ibfk_1;
+ALTER TABLE billing DROP FOREIGN KEY billing_ibfk_1;
+
+-- Then recreate them with ON DELETE CASCADE
+ALTER TABLE appointments 
+ADD CONSTRAINT fk_patient_appointments 
+FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE;
+
+ALTER TABLE medical_records 
+ADD CONSTRAINT fk_patient_medical_records 
+FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE;
+
+ALTER TABLE billing 
+ADD CONSTRAINT fk_patient_billing 
+FOREIGN KEY (patient_id) REFERENCES patients(id) ON DELETE CASCADE;

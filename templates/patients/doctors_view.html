@@ -1,0 +1,30 @@
+{% extends "shared/layout.html" %} {% block title %} Our Doctors - Hospital Management System{% endblock %} {% block content %}
+<div class="page-header">
+    <h2 class="page-title">Our Doctors</h2>
+    <p>Book an appointment with one of our specialists</p>
+</div>
+
+<div class="row">
+    {% for doctor in doctors %}
+    <div class="col-md-4 mb-4">
+        <div class="card h-100">
+            <div class="card-body text-center">
+                <div class="card-icon">
+                    <i class="fas fa-user-md fa-3x"></i>
+                </div>
+                <h4 class="card-title mt-3">Dr. {{ doctor.name }}</h4>
+                <p class="card-text">
+                    <strong>Specialization:</strong> {{ doctor.specialization }}<br> {% if doctor.department %}
+                    <strong>Department:</strong> {{ doctor.department }} {% endif %}
+                </p>
+                <div class="d-grid gap-2">
+                    <a href="{{ url_for('book_appointment') }}?doctor_id={{ doctor.id }}" class="btn btn-primary">
+                        <i class="fas fa-calendar-plus me-2"></i>Book Appointment
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}
